@@ -167,9 +167,69 @@ body {
   color: #243042;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .inline-note {
   color: var(--muted);
   font-size: 14px;
+}
+
+.name-box {
+  margin-top: 22px;
+  max-width: 520px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #243042;
+}
+
+.text-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+
+.text-input:focus {
+  outline: 2px solid rgba(90, 45, 222, 0.18);
+  border-color: #7f54ff;
+}
+
+.stats-inline {
+  margin: 0;
+  color: #344155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stats-panel {
+  margin-top: 14px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stats-chip {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #eef2ff;
+  color: #2f3b52;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.muted-note {
+  margin-top: 12px;
 }
 
 .share-copy {
@@ -920,11 +980,140 @@ let step = 0;
 let answers = [];
 let analysisTimer = null;
 let forcedSavedResult = null;
+let nickname = "";
+let analytics = { configured: null, users: null, starts: null, shares: null };
 
 const app = document.getElementById("app");
 const standaloneMode =
   document.body?.dataset.standalone === "1" ||
   new URLSearchParams(window.location.search).get("standalone") === "1";
+const STORAGE_KEYS = {
+  latestResult: "workBrainLatestResult",
+  nickname: "workBrainNickname",
+  sessionId: "workBrainSessionId",
+};
+const sessionId = getOrCreateSessionId();
+
+nickname = readStorage(STORAGE_KEYS.nickname) || "";
+
+function readStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function getOrCreateSessionId() {
+  const existing = readStorage(STORAGE_KEYS.sessionId);
+  if (existing) return existing;
+
+  const created =
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `wb-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+  writeStorage(STORAGE_KEYS.sessionId, created);
+  return created;
+}
+
+function canUseAnalytics() {
+  return window.location.protocol === "http:" || window.location.protocol === "https:";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getDisplayName() {
+  const savedName = forcedSavedResult?.nickname;
+  return (savedName || nickname || "Friend").trim();
+}
+
+function renderStatsMarkup() {
+  if (analytics.configured === false) {
+    return `<p class="stats-inline">Analytics is ready to work after Redis is connected in Vercel.</p>`;
+  }
+
+  if (analytics.users === null && analytics.shares === null) {
+    return `<p class="stats-inline">Loading live usage stats...</p>`;
+  }
+
+  return `
+    <div class="stats-panel">
+      <span class="stats-chip">${analytics.users || 0} people tried it</span>
+      <span class="stats-chip">${analytics.shares || 0} share copies</span>
+    </div>
+  `;
+}
+
+async function refreshAnalytics() {
+  if (!canUseAnalytics()) return;
+
+  try {
+    const response = await fetch("./api/stats", { cache: "no-store" });
+    if (!response.ok) return;
+
+    const payload = await response.json();
+    analytics = {
+      configured: payload.configured !== false,
+      users: Number(payload.users || 0),
+      starts: Number(payload.starts || 0),
+      shares: Number(payload.shares || 0),
+    };
+
+    if (step === 0 || step > QUESTIONS.length + 1) {
+      render();
+    }
+  } catch {
+    // Ignore analytics fetch failures in local/offline mode.
+  }
+}
+
+async function trackEvent(type, extra = {}) {
+  if (!canUseAnalytics()) return;
+
+  try {
+    const response = await fetch("./api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type,
+        sessionId,
+        nickname: (extra.nickname || nickname || "").trim(),
+        primary: extra.primary || null,
+        secondary: extra.secondary || null,
+      }),
+    });
+
+    if (!response.ok) return;
+
+    const payload = await response.json();
+    if (payload && typeof payload === "object") {
+      analytics = {
+        configured: payload.configured !== false,
+        users: Number(payload.users || 0),
+        starts: Number(payload.starts || 0),
+        shares: Number(payload.shares || 0),
+      };
+    }
+  } catch {
+    // Ignore analytics post failures in local/offline mode.
+  }
+}
 
 function getScores() {
   const base = { strategist: 0, explorer: 0, connector: 0, builder: 0 };
@@ -968,6 +1157,7 @@ function normalizeScoresToThirty(scores) {
 function persistLatestResult(rawScores, normalizedScores, summary) {
   const payload = {
     savedAt: new Date().toISOString(),
+    nickname: getDisplayName(),
     rawScores,
     normalizedScores,
     summary,
@@ -976,7 +1166,7 @@ function persistLatestResult(rawScores, normalizedScores, summary) {
     secondary: summary.secondary,
   };
   try {
-    localStorage.setItem("workBrainLatestResult", JSON.stringify(payload));
+    localStorage.setItem(STORAGE_KEYS.latestResult, JSON.stringify(payload));
   } catch {
     // Ignore storage failures (private mode / quota).
   }
@@ -1415,13 +1605,274 @@ function renderResult() {
   `;
 }
 
+function renderIntroScreen() {
+  const safeNickname = escapeHtml(nickname);
+
+  return `
+    <section class="topbar">
+      <div class="logo-box">WB</div>
+      <div>
+        <h1>Work Brain Diagnostic</h1>
+        <p>A scenario-based quiz that reveals how you actually work.</p>
+      </div>
+    </section>
+
+    <section class="panel panel-pad">
+      <div class="badge-row">
+        <span class="badge dark">3 min feel</span>
+        <span class="badge">10 scenario questions</span>
+        <span class="badge">Detailed result</span>
+      </div>
+      <h2 class="hero-title">The Way You Work Has a Pattern. Discover Your Natural Work Mode.</h2>
+      <p class="hero-desc">
+        This quiz catches real work behavior in the wild. No obvious "good" answers. No fake productivity theater.
+        Just realistic situations, hidden patterns, and a clear summary of where you go right, where you go wrong,
+        and how to improve without becoming a different person.
+      </p>
+
+      <div class="name-box">
+        <label class="field-label" for="nickname-input">Pick a nickname</label>
+        <input
+          class="text-input"
+          id="nickname-input"
+          type="text"
+          maxlength="32"
+          placeholder="How should we address you?"
+          value="${safeNickname}"
+        />
+        <p class="inline-note muted-note">This name is used in your result and stored with analytics so you can track who tried the quiz.</p>
+      </div>
+
+      ${renderStatsMarkup()}
+
+      <div class="two-col">
+        <article class="info-card">
+          <p class="info-title">What you will get</p>
+          <p>&bull; Your dominant work archetype and backup mode</p>
+          <p>&bull; Your most likely anti-patterns</p>
+          <p>&bull; A detailed summary with sharp hooks and insider observations</p>
+          <p>&bull; A practical improvement plan, not generic advice</p>
+        </article>
+        <article class="info-card">
+          <p class="info-title">Important</p>
+          <p>Pick the answer that feels most like your real default.</p>
+          <p>Not your best day. Not your ideal self.</p>
+          <p>The more honest you are, the more accurate the result gets.</p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="button" id="start-btn" ${nickname.trim() ? "" : "disabled"}>Start the quiz</button>
+        <span class="inline-note">No sign-up. No score shaming. Just signal.</span>
+      </div>
+    </section>
+  `;
+}
+
+async function shareQuizTracked() {
+  const hydratedScores = forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores();
+  const summary = forcedSavedResult?.summary || getSummary(hydratedScores);
+  const displayName = getDisplayName();
+  const resultType = `${DIMENSIONS[summary.primary].label} x ${DIMENSIONS[summary.secondary].label}`;
+  const message =
+    `${displayName} just took the Work Brain Diagnostic quiz on Wysa.\n` +
+    `Work style: ${resultType}.\n` +
+    `Click on the link to find out yours: https://dev-widget.wysa.io/wrapper/accenturementalwellbeing/`;
+
+  openTrackedSharePopup(message, summary);
+}
+
+function openTrackedSharePopup(message, summary) {
+  const existing = document.querySelector(".share-modal-overlay");
+  if (existing) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "share-modal-overlay";
+  overlay.innerHTML = `
+    <div class="share-modal" role="dialog" aria-modal="true" aria-label="Share quiz">
+      <button type="button" class="share-close-btn" id="close-share-btn" aria-label="Close share popup">&times;</button>
+      <h3>Share</h3>
+      <textarea readonly>${message}</textarea>
+      <div class="share-modal-actions">
+        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY LINK</button>
+      </div>
+    </div>
+  `;
+
+  const close = () => overlay.remove();
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) close();
+  });
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape") close();
+    },
+    { once: true }
+  );
+
+  document.body.appendChild(overlay);
+
+  const copyBtn = overlay.querySelector("#copy-share-btn");
+  const closeBtn = overlay.querySelector("#close-share-btn");
+  copyBtn?.addEventListener("click", async () => {
+    try {
+      await copyTextToClipboard(message);
+      await trackEvent("share", {
+        primary: summary?.primary || null,
+        secondary: summary?.secondary || null,
+      });
+      copyBtn.textContent = "Copied";
+    } catch {
+      copyBtn.textContent = "Copy failed";
+    }
+  });
+  closeBtn?.addEventListener("click", close);
+}
+
+function renderResultScreen() {
+  const hydratedScores = forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores;
+  const rawScores = hydratedScores || getScores();
+  const scores = normalizeScoresToThirty(rawScores);
+  const summary = forcedSavedResult?.summary || getSummary(rawScores);
+  const safeName = escapeHtml(getDisplayName());
+
+  if (!forcedSavedResult) {
+    persistLatestResult(rawScores, scores, summary);
+  }
+
+  const profile = [
+    { label: "Strategist", value: scores.strategist, color: "#5b2fde" },
+    { label: "Explorer", value: scores.explorer, color: "#7c56f0" },
+    { label: "Connector", value: scores.connector, color: "#9f7cf7" },
+    { label: "Builder", value: scores.builder, color: "#3f23b2" },
+  ];
+  const totalProfileScore = profile.reduce((sum, item) => sum + item.value, 0);
+  let currentAngle = 0;
+  const pieSegments = totalProfileScore
+    ? profile
+        .map((item) => {
+          const start = currentAngle;
+          const slice = (item.value / totalProfileScore) * 360;
+          currentAngle += slice;
+          return `${item.color} ${start.toFixed(2)}deg ${currentAngle.toFixed(2)}deg`;
+        })
+        .join(", ")
+    : "#cbd5e1 0deg 360deg";
+
+  return `
+    <section class="topbar">
+      <div class="logo-box">WB</div>
+      <div>
+        <h1>Work Brain Diagnostic</h1>
+        <p>Your result is ready.</p>
+      </div>
+    </section>
+
+    <section class="panel panel-pad">
+      <div class="result-top">
+        <div class="badge-row result-head">
+          <span class="badge" style="background:#dcfce7;color:#166534;">Result ready</span>
+          <span class="badge">${DIMENSIONS[summary.primary].label} x ${DIMENSIONS[summary.secondary].label}</span>
+        </div>
+      </div>
+      <h2>${safeName}, your work brain is <span class="accent">${DIMENSIONS[summary.primary].label}</span> with a strong <span class="accent">${DIMENSIONS[summary.secondary].label}</span> layer.</h2>
+      <p class="hero-desc">${summary.hook}</p>
+      ${renderStatsMarkup()}
+
+      <div class="result-grid">
+        <article class="block soft">
+          <h3>Detailed read</h3>
+          ${summary.strengths.map((x) => `<p>${x}</p>`).join("")}
+          <h3 style="margin-top:14px;">Insider information</h3>
+          <p>${summary.insider}</p>
+        </article>
+
+        <article class="block white">
+          <h3>Your score profile</h3>
+          <div class="pie-layout">
+            <div class="pie-chart" style="background: conic-gradient(${pieSegments});">
+              <div class="pie-center">
+                <strong>${totalProfileScore}</strong>
+                <span>Total</span>
+              </div>
+            </div>
+            <div class="pie-legend">
+              ${profile
+                .map(
+                  (item) => `
+                  <div class="legend-row">
+                    <span class="legend-label"><i style="background:${item.color};"></i>${item.label}</span>
+                    <span>${item.value}</span>
+                  </div>
+                `
+                )
+                .join("")}
+            </div>
+          </div>
+          <p style="margin:10px 0 0;font-size:13px;">
+            This is a behavioral fingerprint, not a good-vs-bad score.
+          </p>
+          <div class="score-share">
+            <p class="share-copy">Help your team find their work style</p>
+            <div class="actions">
+              <button class="btn primary glow" type="button" id="share-btn">Share</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="split">
+        <article class="panel panel-pad" style="box-shadow:none;">
+          <h2 style="font-size:24px;margin:0 0 10px;">Where you go right</h2>
+          ${summary.actionPlan.slice(0, 2).map((x) => `<p>${x}</p>`).join("")}
+        </article>
+        <article class="panel panel-pad" style="box-shadow:none;">
+          <h2 style="font-size:24px;margin:0 0 10px;">Where you go wrong</h2>
+          ${summary.antiPatterns
+            .map(
+              (p) => `
+              <div class="warn-box">
+                <h4>${p.title}</h4>
+                <p>${p.body}</p>
+                <p class="warn-fix">Fix: ${p.fix}</p>
+              </div>
+            `
+            )
+            .join("")}
+        </article>
+      </div>
+
+      <section class="share">
+        <h2 style="font-size:24px;margin:0 0 10px;">What you should do next</h2>
+        <div class="plan-grid">
+          ${summary.actionPlan
+            .map(
+              (x, i) => `
+              <article class="plan-item">
+                <div class="num">${i + 1}</div>
+                <p>${x}</p>
+              </article>
+            `
+            )
+            .join("")}
+        </div>
+        <div class="bottom-home-wrap">
+          <button class="btn secondary" type="button" id="back-home-btn">${standaloneMode ? "Retake quiz" : "Back to home"}</button>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
 function tryHydrateSavedResultMode() {
   if (window.location.hash !== "#result") return;
 
   try {
-    const saved = JSON.parse(localStorage.getItem("workBrainLatestResult") || "null");
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.latestResult) || "null");
     if (saved && (saved.rawScores || saved.normalizedScores)) {
       forcedSavedResult = saved;
+      nickname = saved.nickname || nickname;
       step = QUESTIONS.length + 2;
     }
   } catch {
@@ -1460,8 +1911,23 @@ function render() {
   const isResult = step > QUESTIONS.length + 1;
 
   if (isIntro) {
-    app.innerHTML = renderIntro();
+    app.innerHTML = renderIntroScreen();
+    const nicknameInput = document.getElementById("nickname-input");
+    const startButton = document.getElementById("start-btn");
+
+    nicknameInput?.addEventListener("input", () => {
+      nickname = nicknameInput.value.trimStart();
+      writeStorage(STORAGE_KEYS.nickname, nickname);
+      startButton.disabled = !nickname.trim();
+    });
+
     document.getElementById("start-btn").addEventListener("click", () => {
+      const enteredName = nicknameInput?.value.trim() || nickname.trim();
+      if (!enteredName) return;
+
+      nickname = enteredName;
+      writeStorage(STORAGE_KEYS.nickname, nickname);
+      trackEvent("start", { nickname });
       step = 1;
       render();
     });
@@ -1500,8 +1966,8 @@ function render() {
   }
 
   if (isResult) {
-    app.innerHTML = renderResult();
-    document.getElementById("share-btn").addEventListener("click", shareQuiz);
+    app.innerHTML = renderResultScreen();
+    document.getElementById("share-btn").addEventListener("click", shareQuizTracked);
     document.getElementById("back-home-btn").addEventListener("click", () => {
       if (standaloneMode || !hasHomePage()) {
         restartQuiz();
@@ -1513,6 +1979,7 @@ function render() {
 }
 
 tryHydrateSavedResultMode();
+refreshAnalytics();
 render();
 
 </script>
