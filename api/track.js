@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { type, sessionId, nickname, primary, secondary } = req.body || {};
+  const { type, sessionId, nickname, primary, secondary, questionIndex } = req.body || {};
   const now = new Date().toISOString();
 
   if (!type || !sessionId) {
@@ -35,7 +35,21 @@ module.exports = async function handler(req, res) {
         redis("INCR", "work-brain:starts"),
         redis("SADD", "work-brain:users", sessionId),
         redis("HSET", "work-brain:startedAt", sessionId, now),
+        redis("HSET", "work-brain:lastQuestion", sessionId, 0),
+        redis("HSET", "work-brain:lastActiveAt", sessionId, now),
       ];
+
+      if (safeNickname) {
+        commands.push(redis("HSET", "work-brain:nicknames", sessionId, safeNickname));
+      }
+
+      await Promise.all(commands);
+    } else if (type === "progress") {
+      const commands = [redis("HSET", "work-brain:lastActiveAt", sessionId, now)];
+
+      if (Number.isFinite(Number(questionIndex))) {
+        commands.push(redis("HSET", "work-brain:lastQuestion", sessionId, Number(questionIndex)));
+      }
 
       if (safeNickname) {
         commands.push(redis("HSET", "work-brain:nicknames", sessionId, safeNickname));
@@ -46,6 +60,8 @@ module.exports = async function handler(req, res) {
       const commands = [
         redis("INCR", "work-brain:completions"),
         redis("HSET", "work-brain:completedAt", sessionId, now),
+        redis("HSET", "work-brain:lastQuestion", sessionId, 10),
+        redis("HSET", "work-brain:lastActiveAt", sessionId, now),
       ];
 
       if (safeNickname) {
@@ -61,6 +77,7 @@ module.exports = async function handler(req, res) {
       const commands = [
         redis("INCR", "work-brain:shares"),
         redis("HSET", "work-brain:sharedAt", sessionId, now),
+        redis("HSET", "work-brain:lastActiveAt", sessionId, now),
       ];
 
       if (safeNickname) {

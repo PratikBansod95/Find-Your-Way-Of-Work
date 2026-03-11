@@ -1247,6 +1247,7 @@ async function trackEvent(type, extra = {}) {
         nickname: (extra.nickname || nickname || "").trim(),
         primary: extra.primary || null,
         secondary: extra.secondary || null,
+        questionIndex: extra.questionIndex ?? null,
       }),
     });
 
@@ -2053,7 +2054,8 @@ function renderAdminDashboard() {
             <td>${escapeHtml(session.nickname || "Anonymous")}</td>
             <td><code>${escapeHtml(session.sessionId || "—")}</code></td>
             <td>${escapeHtml(formatResultLabel(session.result))}</td>
-            <td>${session.completed ? '<span class="pill">Completed</span>' : "—"}</td>
+            <td><span class="pill">${escapeHtml(session.status || "Unknown")}</span></td>
+            <td>${session.lastQuestion ? `Q${Math.min(Number(session.lastQuestion), 10)} / 10` : "—"}</td>
             <td>${session.shared ? '<span class="pill">Shared</span>' : "—"}</td>
             <td>${escapeHtml(formatTimestamp(session.startedAt))}</td>
             <td>${escapeHtml(formatTimestamp(session.completedAt))}</td>
@@ -2120,7 +2122,8 @@ function renderAdminDashboard() {
               <th>Nickname</th>
               <th>Session ID</th>
               <th>Result</th>
-              <th>Completed</th>
+              <th>Status</th>
+              <th>Last Question</th>
               <th>Shared</th>
               <th>Started</th>
               <th>Completed At</th>
@@ -2240,6 +2243,10 @@ function render() {
       button.addEventListener("click", () => {
         const i = Number(button.getAttribute("data-opt-index"));
         answers.push(currentQuestion.options[i]);
+        trackEvent("progress", {
+          nickname,
+          questionIndex: answers.length,
+        });
         if (answers.length === QUESTIONS.length) {
           step = QUESTIONS.length + 1;
           render();

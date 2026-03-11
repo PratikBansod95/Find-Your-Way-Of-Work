@@ -62,12 +62,14 @@ async function getAdminData() {
     };
   }
 
-  const [nicknames, results, completedAt, sharedAt, startedAt] = await Promise.all([
+  const [nicknames, results, completedAt, sharedAt, startedAt, lastQuestion, lastActiveAt] = await Promise.all([
     redis("HGETALL", "work-brain:nicknames"),
     redis("HGETALL", "work-brain:results"),
     redis("HGETALL", "work-brain:completedAt"),
     redis("HGETALL", "work-brain:sharedAt"),
     redis("HGETALL", "work-brain:startedAt"),
+    redis("HGETALL", "work-brain:lastQuestion"),
+    redis("HGETALL", "work-brain:lastActiveAt"),
   ]);
 
   const ids = Array.from(
@@ -77,23 +79,41 @@ async function getAdminData() {
       ...Object.keys(completedAt || {}),
       ...Object.keys(sharedAt || {}),
       ...Object.keys(startedAt || {}),
+      ...Object.keys(lastQuestion || {}),
+      ...Object.keys(lastActiveAt || {}),
     ])
   );
 
   const sessions = ids
-    .map((id) => ({
-      sessionId: id,
-      nickname: nicknames?.[id] || "",
-      result: results?.[id] || "",
-      startedAt: startedAt?.[id] || "",
-      completedAt: completedAt?.[id] || "",
-      sharedAt: sharedAt?.[id] || "",
-      completed: Boolean(completedAt?.[id]),
-      shared: Boolean(sharedAt?.[id]),
-    }))
+    .map((id) => {
+      const completed = Boolean(completedAt?.[id]);
+      const questionReached = Number(lastQuestion?.[id] || 0);
+      const started = Boolean(startedAt?.[id]);
+      const status = completed
+        ? "Completed"
+        : started && questionReached > 0
+        ? `Dropped at Q${Math.min(questionReached + 1, 10)}`
+        : started
+        ? "Started only"
+        : "Unknown";
+
+      return {
+        sessionId: id,
+        nickname: nicknames?.[id] || "",
+        result: results?.[id] || "",
+        startedAt: startedAt?.[id] || "",
+        completedAt: completedAt?.[id] || "",
+        sharedAt: sharedAt?.[id] || "",
+        lastActiveAt: lastActiveAt?.[id] || "",
+        lastQuestion: questionReached,
+        completed,
+        shared: Boolean(sharedAt?.[id]),
+        status,
+      };
+    })
     .sort((a, b) => {
-      const aTime = a.sharedAt || a.completedAt || a.startedAt || "";
-      const bTime = b.sharedAt || b.completedAt || b.startedAt || "";
+      const aTime = a.lastActiveAt || a.sharedAt || a.completedAt || a.startedAt || "";
+      const bTime = b.lastActiveAt || b.sharedAt || b.completedAt || b.startedAt || "";
       return aTime < bTime ? 1 : -1;
     });
 
