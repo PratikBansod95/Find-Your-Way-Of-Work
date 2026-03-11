@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Work Brain Diagnostic preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5d279"/>
+      <stop offset="50%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#b59cff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="40" fill="url(#bg)"/>
+  <circle cx="1020" cy="120" r="120" fill="rgba(255,255,255,0.32)"/>
+  <circle cx="150" cy="560" r="130" fill="rgba(255,255,255,0.24)"/>
+  <rect x="78" y="70" width="92" height="92" rx="24" fill="#10172a"/>
+  <text x="124" y="128" text-anchor="middle" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="44" font-weight="800" fill="#ffffff">WB</text>
+  <text x="78" y="238" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="26" font-weight="800" letter-spacing="3" fill="#443865">WORK BRAIN TYPE</text>
+  <text x="78" y="360" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="92" font-weight="800" fill="#281f59">BUILDER +</text>
+  <text x="78" y="454" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="72" font-weight="800" fill="#281f59">STRATEGIST</text>
+  <text x="78" y="532" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="34" font-style="italic" fill="#4f4b72">"Ships fast. Thinks deep."</text>
+  <text x="78" y="590" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#332b5a">Find your work brain.</text>
+</svg>

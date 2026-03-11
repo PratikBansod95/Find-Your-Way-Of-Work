@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Work Brain Diagnostic</title>
+  <meta name="description" content="Discover your work brain type and share your result." />
+  <meta property="og:title" content="Work Brain Diagnostic" />
+  <meta property="og:description" content="Discover your work brain type and compare it with your team." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://find-your-way-of-work.vercel.app/og-preview.svg" />
+  <meta property="og:url" content="https://find-your-way-of-work.vercel.app/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Work Brain Diagnostic" />
+  <meta name="twitter:description" content="Discover your work brain type and compare it with your team." />
+  <meta name="twitter:image" content="https://find-your-way-of-work.vercel.app/og-preview.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -640,6 +650,515 @@ body {
   font-weight: 700;
 }
 
+.result-shell {
+  display: grid;
+  gap: 22px;
+}
+
+.result-hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  padding: clamp(20px, 3vw, 28px);
+  background: linear-gradient(135deg, rgba(245, 247, 252, 0.95), rgba(255, 255, 255, 0.92));
+  border: 1px solid rgba(198, 206, 224, 0.7);
+}
+
+.result-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.result-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #dbf6e9;
+  color: #17603d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.result-label {
+  margin: 16px 0 0;
+  color: #453866;
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.identity-stack {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.identity-primary {
+  margin: 0;
+  font-size: clamp(42px, 7vw, 86px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+}
+
+.identity-secondary {
+  margin: 0;
+  color: #332b5a;
+  font-size: clamp(22px, 3vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
+.identity-tagline {
+  margin: 8px 0 0;
+  color: #4f4b72;
+  font-size: clamp(18px, 2vw, 28px);
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.rarity-hook {
+  margin: 18px 0 0;
+  color: #1f2540;
+  font-size: clamp(24px, 3.2vw, 40px);
+  line-height: 1.15;
+  font-weight: 700;
+  text-align: center;
+}
+
+.hero-divider {
+  border-top: 1px solid rgba(218, 223, 236, 0.9);
+  padding-top: 18px;
+}
+
+.hero-prompt {
+  margin: 0 0 16px;
+  color: #6a6887;
+  font-size: clamp(18px, 2vw, 22px);
+  text-align: center;
+}
+
+.share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.share-actions .btn {
+  min-height: 52px;
+}
+
+.share-actions .btn.primary {
+  box-shadow: 0 16px 34px rgba(90, 45, 222, 0.2);
+}
+
+.btn.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.share-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(205, 213, 229, 0.9);
+  color: #1f2940;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.social-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #eef2ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.visual-card {
+  position: relative;
+  min-height: 360px;
+  border-radius: 26px;
+  overflow: hidden;
+  padding: 24px;
+  color: #1f2240;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.visual-card::before,
+.visual-card::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  filter: blur(2px);
+}
+
+.visual-card::before {
+  width: 260px;
+  height: 260px;
+  right: -54px;
+  top: -70px;
+}
+
+.visual-card::after {
+  width: 180px;
+  height: 180px;
+  left: -36px;
+  bottom: -60px;
+}
+
+.visual-card-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 18% 24%, rgba(255,255,255,0.42) 0 2px, transparent 2px),
+    radial-gradient(circle at 78% 30%, rgba(255,255,255,0.35) 0 3px, transparent 3px),
+    radial-gradient(circle at 66% 72%, rgba(255,255,255,0.3) 0 2px, transparent 2px);
+  pointer-events: none;
+}
+
+.visual-card-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  align-content: space-between;
+  gap: 18px;
+}
+
+.visual-kicker {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.visual-icon {
+  width: 92px;
+  height: 92px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.visual-primary {
+  margin: 0;
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+}
+
+.visual-secondary {
+  margin: 0;
+  font-size: clamp(22px, 2.7vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+}
+
+.visual-caption {
+  margin: 0;
+  font-size: clamp(18px, 2vw, 26px);
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.visual-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(31, 34, 64, 0.82);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.confetti-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-bit {
+  position: absolute;
+  width: 9px;
+  height: 16px;
+  border-radius: 999px;
+  opacity: 0;
+  animation: confettiRise 1.2s ease-out forwards;
+}
+
+@keyframes confettiRise {
+  0% { transform: translateY(18px) rotate(0deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-80px) rotate(180deg); opacity: 0; }
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.82fr) minmax(0, 1.18fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.profile-card,
+.insight-card,
+.action-card,
+.details-card {
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid rgba(219, 225, 238, 0.9);
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.05);
+}
+
+.profile-card,
+.insight-card,
+.details-card {
+  padding: 22px;
+}
+
+.section-title {
+  margin: 0 0 18px;
+  color: #4a3e72;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.donut-wrap {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+
+.donut-svg {
+  width: min(240px, 100%);
+  aspect-ratio: 1;
+}
+
+.donut-track {
+  fill: none;
+  stroke: #edf1f7;
+  stroke-width: 18;
+}
+
+.donut-segment {
+  fill: none;
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-dasharray: 0 var(--gap);
+  stroke-dashoffset: var(--offset);
+  animation: donutFill 1s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes donutFill {
+  to {
+    stroke-dasharray: var(--arc) var(--gap);
+  }
+}
+
+.donut-total {
+  font-size: 13px;
+  fill: #6b7280;
+}
+
+.donut-score {
+  font-size: 24px;
+  font-weight: 800;
+  fill: #111827;
+}
+
+.profile-list {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1f7;
+}
+
+.profile-row:last-child {
+  border-bottom: 0;
+}
+
+.profile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.profile-copy strong {
+  display: block;
+  font-size: 19px;
+}
+
+.profile-copy span {
+  display: inline-block;
+  margin-top: 4px;
+  color: #677085;
+  font-size: 14px;
+}
+
+.profile-score {
+  text-align: right;
+}
+
+.profile-score strong {
+  display: block;
+  font-size: 18px;
+}
+
+.profile-score span {
+  color: #7b8295;
+  font-size: 13px;
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.insight-card h3 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #443865;
+}
+
+.insight-lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.insight-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.insight-card p {
+  margin: 0;
+  color: #22263f;
+  font-size: clamp(22px, 3vw, 26px);
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  padding: 18px;
+}
+
+.action-card .step-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(108, 76, 255, 0.14);
+  color: #4b2ec8;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.action-card p {
+  margin: 0;
+  color: #29324a;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
+.details-card details {
+  width: 100%;
+}
+
+.details-card summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 700;
+  color: #332b5a;
+}
+
+.details-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.details-card summary span:last-child {
+  transition: transform 0.18s ease;
+}
+
+.details-card details[open] summary span:last-child {
+  transform: rotate(90deg);
+}
+
+.details-content {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  color: #4b5568;
+  line-height: 1.65;
+}
+
 .plan-grid {
   margin-top: 18px;
   display: grid;
@@ -924,6 +1443,11 @@ body {
   .result-grid, .split { grid-template-columns: 1fr; }
   .plan-grid { grid-template-columns: 1fr 1fr; }
   .pie-layout { grid-template-columns: 1fr; justify-items: center; }
+  .result-hero-grid,
+  .profile-grid,
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 760px) {
   .panel-pad { padding: 20px; }
@@ -938,6 +1462,36 @@ body {
   .share-modal { padding: 18px 16px 24px; }
   .share-modal textarea { min-height: 110px; padding: 18px 20px; border-radius: 24px; }
   .share-copy-btn { min-width: 100%; }
+  .result-hero-card,
+  .profile-card,
+  .insight-card,
+  .details-card,
+  .action-card {
+    padding: 18px;
+  }
+  .visual-card {
+    min-height: 300px;
+    padding: 20px;
+  }
+  .hero-prompt,
+  .rarity-hook {
+    text-align: left;
+  }
+  .share-actions {
+    flex-direction: column;
+  }
+  .share-actions .btn,
+  .social-link {
+    width: 100%;
+    justify-content: center;
+  }
+  .profile-row {
+    grid-template-columns: auto 1fr;
+  }
+  .profile-score {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 
 </style>
@@ -1167,6 +1721,208 @@ function escapeHtml(value) {
 function getDisplayName() {
   const savedName = forcedSavedResult?.nickname;
   return (savedName || nickname || "Friend").trim();
+}
+
+const ARCHETYPE_VISUALS = {
+  builder: {
+    icon: "▣",
+    color: "#f4b73f",
+    secondary: "#ffdf8a",
+    accent: "#7b4f00",
+    tagline: "Ships fast. Turns chaos into progress.",
+    shareTag: "Ships fast.",
+  },
+  strategist: {
+    icon: "♞",
+    color: "#6f4cff",
+    secondary: "#b89dff",
+    accent: "#2e1d78",
+    tagline: "Thinks long term. Finds the real problem.",
+    shareTag: "Thinks deep.",
+  },
+  explorer: {
+    icon: "◎",
+    color: "#4f8cff",
+    secondary: "#9fc0ff",
+    accent: "#153b85",
+    tagline: "Discovers new paths and experiments.",
+    shareTag: "Tests bold ideas.",
+  },
+  connector: {
+    icon: "◌",
+    color: "#1bb5ac",
+    secondary: "#84e7df",
+    accent: "#0d5853",
+    tagline: "Aligns people and builds momentum.",
+    shareTag: "Builds momentum.",
+  },
+};
+
+const SPECIAL_COMBO_HOOKS = {
+  "builder:strategist": "This is one of the strongest combos in high-pressure teams.",
+  "connector:builder": "Teams tend to move faster when this combo is in the room.",
+  "strategist:explorer": "This combination is built for ambiguous, high-leverage work.",
+  "explorer:builder": "Fast experiments and tangible progress make this a rare operating style.",
+};
+
+function getArchetypeVisual(key) {
+  return ARCHETYPE_VISUALS[key] || ARCHETYPE_VISUALS.builder;
+}
+
+function getComboGradient(primary, secondary) {
+  const primaryVisual = getArchetypeVisual(primary);
+  const secondaryVisual = getArchetypeVisual(secondary);
+  return `linear-gradient(135deg, ${primaryVisual.secondary} 0%, #ffffff 45%, ${secondaryVisual.secondary} 100%)`;
+}
+
+function getHeroTagline(summary) {
+  return getArchetypeVisual(summary.primary).tagline;
+}
+
+function getShareTagline(summary) {
+  return `${getArchetypeVisual(summary.primary).shareTag} ${getArchetypeVisual(summary.secondary).shareTag}`;
+}
+
+function getRarityHook(scores, summary) {
+  const special = SPECIAL_COMBO_HOOKS[`${summary.primary}:${summary.secondary}`];
+  if (special) return special;
+
+  const topScore = scores[summary.primary] || 0;
+  const secondScore = scores[summary.secondary] || 0;
+  const rarity = Math.max(9, Math.min(22, Math.round(24 - (topScore + secondScore) / 2 - (topScore - secondScore))));
+  return `Only ${rarity}% of people have this combination.`;
+}
+
+function getTopPercentLabel(value) {
+  const topPercent = Math.max(8, Math.min(38, Math.round(42 - value * 2.2)));
+  return `Top ${topPercent}%`;
+}
+
+function getSharePayload(summary, scores) {
+  const displayName = getDisplayName();
+  const appUrl = getAppShareUrl();
+  const combo = `${DIMENSIONS[summary.primary].label} + ${DIMENSIONS[summary.secondary].label}`;
+  const tagline = getShareTagline(summary);
+  const text =
+    `${displayName ? `${displayName}'s` : "My"} work brain is ${combo}.\n\n` +
+    `${tagline}\n\n` +
+    `What's yours?\n${appUrl}`;
+
+  return {
+    appUrl,
+    combo,
+    tagline,
+    text,
+    title: `My Work Brain: ${combo}`,
+  };
+}
+
+function updateResultMeta(summary) {
+  const payload = getSharePayload(summary, {});
+  document.title = `${payload.combo} | Work Brain Diagnostic`;
+
+  const meta = {
+    description: payload.text,
+    "og:title": `Work Brain Diagnostic: ${payload.combo}`,
+    "og:description": payload.text,
+    "og:url": `${getAppShareUrl()}#result`,
+    "twitter:title": `Work Brain Diagnostic: ${payload.combo}`,
+    "twitter:description": payload.text,
+  };
+
+  Object.entries(meta).forEach(([name, content]) => {
+    const selector = name.startsWith("og:")
+      ? `meta[property="${name}"]`
+      : `meta[name="${name}"]`;
+    const tag = document.querySelector(selector);
+    if (tag) tag.setAttribute("content", content);
+  });
+}
+
+function buildDonutSvg(profile) {
+  const radius = 44;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  const segments = profile
+    .map((item, index) => {
+      const arc = (item.value / 30) * circumference;
+      const segment = `
+        <circle
+          class="donut-segment"
+          cx="60"
+          cy="60"
+          r="${radius}"
+          stroke="${item.color}"
+          style="--arc:${arc}; --gap:${circumference}; --offset:${-offset}; --delay:${index * 120}ms"
+          transform="rotate(-90 60 60)"
+        ></circle>
+      `;
+      offset += arc;
+      return segment;
+    })
+    .join("");
+
+  return `
+    <svg class="donut-svg" viewBox="0 0 120 120" role="img" aria-label="Score profile donut chart">
+      <circle class="donut-track" cx="60" cy="60" r="${radius}"></circle>
+      ${segments}
+      <text x="60" y="57" text-anchor="middle" class="donut-score">30</text>
+      <text x="60" y="75" text-anchor="middle" class="donut-total">Total</text>
+    </svg>
+  `;
+}
+
+async function downloadResultCard(summary, scores) {
+  const payload = getSharePayload(summary, scores);
+  const primaryVisual = getArchetypeVisual(summary.primary);
+  const secondaryVisual = getArchetypeVisual(summary.secondary);
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1080;
+  const ctx = canvas.getContext("2d");
+
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+  gradient.addColorStop(0, primaryVisual.secondary);
+  gradient.addColorStop(0.5, "#ffffff");
+  gradient.addColorStop(1, secondaryVisual.secondary);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1080);
+
+  ctx.fillStyle = "rgba(255,255,255,0.28)";
+  ctx.beginPath();
+  ctx.arc(900, 180, 220, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(160, 920, 180, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#2a2355";
+  ctx.font = "800 40px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText("WORK BRAIN TYPE", 86, 110);
+
+  ctx.fillStyle = "rgba(255,255,255,0.35)";
+  ctx.fillRect(86, 160, 148, 148);
+  ctx.fillStyle = "#2a2355";
+  ctx.font = "800 84px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText(primaryVisual.icon, 131, 262);
+
+  ctx.font = "800 132px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText(DIMENSIONS[summary.primary].label.toUpperCase(), 86, 430);
+  ctx.font = "800 76px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText(`+ ${DIMENSIONS[summary.secondary].label.toUpperCase()}`, 86, 522);
+
+  ctx.font = "500 italic 54px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText(`"${payload.tagline}"`, 86, 650);
+
+  ctx.font = "700 44px Plus Jakarta Sans, Segoe UI, sans-serif";
+  ctx.fillText("Find your work brain.", 86, 930);
+  ctx.fillText("Work Brain Diagnostic", 86, 988);
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = `${DIMENSIONS[summary.primary].label.toLowerCase()}-${DIMENSIONS[summary.secondary].label.toLowerCase()}-work-brain.png`;
+  link.click();
 }
 
 function getAppShareUrl() {
@@ -1852,15 +2608,41 @@ function renderIntroScreen() {
 async function shareQuizTracked() {
   const hydratedScores = forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores();
   const summary = forcedSavedResult?.summary || getSummary(hydratedScores);
-  const displayName = getDisplayName();
-  const resultType = `${DIMENSIONS[summary.primary].label} x ${DIMENSIONS[summary.secondary].label}`;
-  const appUrl = getAppShareUrl();
-  const message =
-    `${displayName} just took the Work Brain Diagnostic quiz on Wysa.\n` +
-    `Work style: ${resultType}.\n` +
-    `Take the quiz here: ${appUrl}`;
+  const scores = normalizeScoresToThirty(hydratedScores);
+  const payload = getSharePayload(summary, scores);
 
-  openTrackedSharePopup(message, summary);
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: payload.title,
+        text: payload.text,
+        url: payload.appUrl,
+      });
+      await trackEvent("share", {
+        primary: summary?.primary || null,
+        secondary: summary?.secondary || null,
+      });
+      return;
+    } catch {
+      // Fall back to custom popup below.
+    }
+  }
+
+  openTrackedSharePopup(payload.text, summary);
+}
+
+async function copyResultLink() {
+  await copyTextToClipboard(getAppShareUrl());
+}
+
+async function challengeTeam(summary, scores) {
+  const payload = getSharePayload(summary, scores);
+  const challengeMessage = `I got ${payload.combo} on Work Brain Diagnostic. Beat it or match it:\n${payload.appUrl}`;
+  await copyTextToClipboard(challengeMessage);
+  await trackEvent("share", {
+    primary: summary?.primary || null,
+    secondary: summary?.secondary || null,
+  });
 }
 
 function openTrackedSharePopup(message, summary) {
@@ -1917,29 +2699,29 @@ function renderResultScreen() {
   const scores = normalizeScoresToThirty(rawScores);
   const summary = forcedSavedResult?.summary || getSummary(rawScores);
   const safeName = escapeHtml(getDisplayName());
+  const primaryVisual = getArchetypeVisual(summary.primary);
+  const secondaryVisual = getArchetypeVisual(summary.secondary);
+  const comboGradient = getComboGradient(summary.primary, summary.secondary);
+  const heroTagline = getHeroTagline(summary);
+  const shareTagline = getShareTagline(summary);
+  const rarityHook = getRarityHook(scores, summary);
+  const sharePayload = getSharePayload(summary, scores);
 
   if (!forcedSavedResult) {
     persistLatestResult(rawScores, scores, summary);
   }
 
+  updateResultMeta(summary);
+
   const profile = [
-    { label: "Strategist", value: scores.strategist, color: "#5b2fde" },
-    { label: "Explorer", value: scores.explorer, color: "#7c56f0" },
-    { label: "Connector", value: scores.connector, color: "#9f7cf7" },
-    { label: "Builder", value: scores.builder, color: "#3f23b2" },
+    { key: "builder", label: "Builder", value: scores.builder, color: getArchetypeVisual("builder").color, icon: getArchetypeVisual("builder").icon },
+    { key: "strategist", label: "Strategist", value: scores.strategist, color: getArchetypeVisual("strategist").color, icon: getArchetypeVisual("strategist").icon },
+    { key: "explorer", label: "Explorer", value: scores.explorer, color: getArchetypeVisual("explorer").color, icon: getArchetypeVisual("explorer").icon },
+    { key: "connector", label: "Connector", value: scores.connector, color: getArchetypeVisual("connector").color, icon: getArchetypeVisual("connector").icon },
   ];
-  const totalProfileScore = profile.reduce((sum, item) => sum + item.value, 0);
-  let currentAngle = 0;
-  const pieSegments = totalProfileScore
-    ? profile
-        .map((item) => {
-          const start = currentAngle;
-          const slice = (item.value / totalProfileScore) * 360;
-          currentAngle += slice;
-          return `${item.color} ${start.toFixed(2)}deg ${currentAngle.toFixed(2)}deg`;
-        })
-        .join(", ")
-    : "#cbd5e1 0deg 360deg";
+  const donutSvg = buildDonutSvg(profile);
+  const socialText = encodeURIComponent(sharePayload.text);
+  const socialUrl = encodeURIComponent(sharePayload.appUrl);
 
   return `
     <section class="topbar">
@@ -1950,97 +2732,157 @@ function renderResultScreen() {
       </div>
     </section>
 
-    <section class="panel panel-pad">
-      <div class="result-top">
-        <div class="badge-row result-head">
-          <span class="badge" style="background:#dcfce7;color:#166534;">Result ready</span>
-          <span class="badge">${DIMENSIONS[summary.primary].label} x ${DIMENSIONS[summary.secondary].label}</span>
-        </div>
-      </div>
-      <h2>${safeName}, your work brain is <span class="accent">${DIMENSIONS[summary.primary].label}</span> with a strong <span class="accent">${DIMENSIONS[summary.secondary].label}</span> layer.</h2>
-      <p class="hero-desc">${summary.hook}</p>
-
-      <div class="result-grid">
-        <article class="block soft">
-          <h3>Detailed read</h3>
-          ${summary.strengths.map((x) => `<p>${x}</p>`).join("")}
-          <h3 style="margin-top:14px;">Insider information</h3>
-          <p>${summary.insider}</p>
-        </article>
-
-        <article class="block white">
-          <h3>Your score profile</h3>
-          <div class="pie-layout">
-            <div class="pie-chart" style="background: conic-gradient(${pieSegments});">
-              <div class="pie-center">
-                <strong>${totalProfileScore}</strong>
-                <span>Total</span>
-              </div>
-            </div>
-            <div class="pie-legend">
-              ${profile
-                .map(
-                  (item) => `
-                  <div class="legend-row">
-                    <span class="legend-label"><i style="background:${item.color};"></i>${item.label}</span>
-                    <span>${item.value}</span>
-                  </div>
-                `
-                )
-                .join("")}
-            </div>
-          </div>
-          <p style="margin:10px 0 0;font-size:13px;">
-            This is a behavioral fingerprint, not a good-vs-bad score.
-          </p>
-          <div class="score-share">
-            <p class="share-copy">Help your team find their work style</p>
-            <div class="actions">
-              <button class="btn primary glow" type="button" id="share-btn">Share</button>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div class="split">
-        <article class="panel panel-pad" style="box-shadow:none;">
-          <h2 style="font-size:24px;margin:0 0 10px;">Where you go right</h2>
-          ${summary.actionPlan.slice(0, 2).map((x) => `<p>${x}</p>`).join("")}
-        </article>
-        <article class="panel panel-pad" style="box-shadow:none;">
-          <h2 style="font-size:24px;margin:0 0 10px;">Where you go wrong</h2>
-          ${summary.antiPatterns
+    <section class="panel panel-pad result-shell">
+      <section class="result-hero-card">
+        <div class="confetti-burst" aria-hidden="true">
+          ${Array.from({ length: 16 })
             .map(
-              (p) => `
-              <div class="warn-box">
-                <h4>${p.title}</h4>
-                <p>${p.body}</p>
-                <p class="warn-fix">Fix: ${p.fix}</p>
-              </div>
+              (_, index) => `
+              <span
+                class="confetti-bit"
+                style="left:${6 + ((index * 11) % 88)}%; top:${58 + ((index * 7) % 28)}%; background:${index % 2 ? primaryVisual.color : secondaryVisual.color}; animation-delay:${index * 80}ms"
+              ></span>
             `
             )
             .join("")}
-        </article>
-      </div>
+        </div>
+        <div class="result-hero-grid">
+          <article class="visual-card" style="background:${comboGradient}">
+            <div class="visual-card-pattern"></div>
+            <div class="visual-card-inner">
+              <div>
+                <p class="visual-kicker">Work Brain Type</p>
+                <div class="visual-icon">${primaryVisual.icon}</div>
+              </div>
+              <div>
+                <p class="visual-primary">${DIMENSIONS[summary.primary].label.toUpperCase()}</p>
+                <p class="visual-secondary">+ ${DIMENSIONS[summary.secondary].label.toUpperCase()}</p>
+                <p class="visual-caption">"${shareTagline}"</p>
+              </div>
+              <div class="visual-footer">
+                <span>Work Brain Diagnostic</span>
+                <span>Find your work brain.</span>
+              </div>
+            </div>
+          </article>
 
-      <section class="share">
-        <h2 style="font-size:24px;margin:0 0 10px;">What you should do next</h2>
-        <div class="plan-grid">
+          <div>
+            <span class="result-chip">Result Ready</span>
+            <p class="result-label">Your Work Brain</p>
+            <div class="identity-stack">
+              <h2 class="identity-primary">${DIMENSIONS[summary.primary].label.toUpperCase()} +</h2>
+              <p class="identity-secondary">${DIMENSIONS[summary.secondary].label.toUpperCase()}</p>
+            </div>
+            <p class="identity-tagline">${heroTagline}</p>
+
+            <div class="hero-divider" style="margin-top:20px;">
+              <p class="hero-prompt">${safeName ? `${safeName}, ` : ""}${rarityHook}</p>
+              <div class="share-actions">
+                <button class="btn primary icon-btn" type="button" id="share-result-btn">Share Result <span aria-hidden="true">↗</span></button>
+                <button class="btn secondary icon-btn" type="button" id="copy-link-btn">Copy Link</button>
+                <button class="btn secondary icon-btn" type="button" id="download-card-btn">Download Result Card</button>
+                <button class="btn secondary icon-btn" type="button" id="challenge-team-btn">Challenge Your Team <span aria-hidden="true">→</span></button>
+              </div>
+              <div class="share-socials" style="margin-top:14px;">
+                <a class="social-link" id="share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=${socialUrl}" target="_blank" rel="noreferrer">
+                  <span class="social-mark">in</span> LinkedIn
+                </a>
+                <a class="social-link" id="share-x" href="https://twitter.com/intent/tweet?text=${socialText}" target="_blank" rel="noreferrer">
+                  <span class="social-mark">X</span> Twitter / X
+                </a>
+                <a class="social-link" id="share-whatsapp" href="https://wa.me/?text=${socialText}" target="_blank" rel="noreferrer">
+                  <span class="social-mark">WA</span> WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="profile-grid">
+        <article class="profile-card">
+          <p class="section-title">Your Score Profile</p>
+          <div class="donut-wrap">
+            ${donutSvg}
+          </div>
+        </article>
+        <article class="profile-card">
+          <p class="section-title">Score Distribution</p>
+          <div class="profile-list">
+            ${profile
+              .map(
+                (item) => `
+                <div class="profile-row">
+                  <div class="profile-icon" style="background:linear-gradient(135deg, ${item.color}, ${getArchetypeVisual(item.key).secondary}); color:${getArchetypeVisual(item.key).accent};">${item.icon}</div>
+                  <div class="profile-copy">
+                    <strong>${item.label}</strong>
+                    <span>${getTopPercentLabel(item.value)} ${item.label} score</span>
+                  </div>
+                  <div class="profile-score">
+                    <strong>${item.value}</strong>
+                    <span>vs Avg. ${item.key === "builder" ? "8" : item.key === "strategist" ? "8" : item.key === "explorer" ? "7" : "7"}</span>
+                  </div>
+                </div>
+              `
+              )
+              .join("")}
+          </div>
+        </article>
+      </section>
+
+      <section class="insight-grid">
+        <article class="insight-card">
+          <div class="insight-lead">
+            <div class="insight-icon" style="background:linear-gradient(135deg, ${primaryVisual.color}, ${primaryVisual.secondary}); color:${primaryVisual.accent};">${primaryVisual.icon}</div>
+            <h3>Your Edge</h3>
+          </div>
+          <p>${DIMENSIONS[summary.primary].strength}</p>
+        </article>
+        <article class="insight-card">
+          <div class="insight-lead">
+            <div class="insight-icon" style="background:linear-gradient(135deg, #ff8d8d, #ffd0d0); color:#8a1f1f;">!</div>
+            <h3>Watch Out</h3>
+          </div>
+          <p>${DIMENSIONS[summary.primary].risk}</p>
+        </article>
+      </section>
+
+      <section>
+        <p class="section-title">Action Plan</p>
+        <div class="action-grid">
           ${summary.actionPlan
+            .slice(0, 4)
             .map(
-              (x, i) => `
-              <article class="plan-item">
-                <div class="num">${i + 1}</div>
-                <p>${x}</p>
+              (item, index) => `
+              <article class="action-card">
+                <div class="step-chip">${index + 1}</div>
+                <p>${item}</p>
               </article>
             `
             )
             .join("")}
         </div>
-        <div class="bottom-home-wrap">
-          <button class="btn secondary" type="button" id="back-home-btn">${standaloneMode ? "Retake quiz" : "Back to home"}</button>
-        </div>
       </section>
+
+      <section class="details-card">
+        <details>
+          <summary>
+            <span>Read full breakdown</span>
+            <span aria-hidden="true">›</span>
+          </summary>
+          <div class="details-content">
+            ${summary.strengths.map((item) => `<p>${item}</p>`).join("")}
+            <p>${summary.insider}</p>
+            ${summary.antiPatterns
+              .map((item) => `<p><strong>${item.title}:</strong> ${item.body} Fix: ${item.fix}</p>`)
+              .join("")}
+          </div>
+        </details>
+      </section>
+
+      <div class="bottom-home-wrap">
+        <button class="btn secondary" type="button" id="back-home-btn">${standaloneMode ? "Retake Quiz" : "Back to Home"}</button>
+      </div>
     </section>
   `;
 }
@@ -2283,7 +3125,39 @@ function render() {
       });
     }
     app.innerHTML = renderResultScreen();
-    document.getElementById("share-btn").addEventListener("click", shareQuizTracked);
+    const resultScores = normalizeScoresToThirty(forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores());
+    const resultSummary = forcedSavedResult?.summary || getSummary(forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores());
+
+    document.getElementById("share-result-btn")?.addEventListener("click", shareQuizTracked);
+    document.getElementById("copy-link-btn")?.addEventListener("click", async () => {
+      try {
+        await copyResultLink();
+        await trackEvent("share", {
+          primary: resultSummary.primary,
+          secondary: resultSummary.secondary,
+        });
+      } catch {
+        // Ignore clipboard failures.
+      }
+    });
+    document.getElementById("download-card-btn")?.addEventListener("click", () => {
+      downloadResultCard(resultSummary, resultScores);
+    });
+    document.getElementById("challenge-team-btn")?.addEventListener("click", async () => {
+      try {
+        await challengeTeam(resultSummary, resultScores);
+      } catch {
+        // Ignore clipboard failures.
+      }
+    });
+    ["share-linkedin", "share-x", "share-whatsapp"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("click", () => {
+        trackEvent("share", {
+          primary: resultSummary.primary,
+          secondary: resultSummary.secondary,
+        });
+      });
+    });
     document.getElementById("back-home-btn").addEventListener("click", () => {
       if (standaloneMode || !hasHomePage()) {
         restartQuiz();
