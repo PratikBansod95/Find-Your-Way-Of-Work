@@ -2778,10 +2778,7 @@ function renderResultScreen() {
             <div class="hero-divider" style="margin-top:20px;">
               <p class="hero-prompt">${safeName ? `${safeName}, ` : ""}${rarityHook}</p>
               <div class="share-actions">
-                <button class="btn primary icon-btn" type="button" id="share-result-btn">Share Result <span aria-hidden="true">↗</span></button>
-                <button class="btn secondary icon-btn" type="button" id="copy-link-btn">Copy Link</button>
-                <button class="btn secondary icon-btn" type="button" id="download-card-btn">Download Result Card</button>
-                <button class="btn secondary icon-btn" type="button" id="challenge-team-btn">Challenge Your Team <span aria-hidden="true">→</span></button>
+                <button class="btn primary icon-btn" type="button" id="challenge-team-btn">Challenge Your Team <span aria-hidden="true">→</span></button>
               </div>
               <div class="share-socials" style="margin-top:14px;">
                 <a class="social-link" id="share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=${socialUrl}" target="_blank" rel="noreferrer">
@@ -2879,10 +2876,6 @@ function renderResultScreen() {
           </div>
         </details>
       </section>
-
-      <div class="bottom-home-wrap">
-        <button class="btn secondary" type="button" id="back-home-btn">${standaloneMode ? "Retake Quiz" : "Back to Home"}</button>
-      </div>
     </section>
   `;
 }
@@ -3128,24 +3121,9 @@ function render() {
     const resultScores = normalizeScoresToThirty(forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores());
     const resultSummary = forcedSavedResult?.summary || getSummary(forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores());
 
-    document.getElementById("share-result-btn")?.addEventListener("click", shareQuizTracked);
-    document.getElementById("copy-link-btn")?.addEventListener("click", async () => {
-      try {
-        await copyResultLink();
-        await trackEvent("share", {
-          primary: resultSummary.primary,
-          secondary: resultSummary.secondary,
-        });
-      } catch {
-        // Ignore clipboard failures.
-      }
-    });
-    document.getElementById("download-card-btn")?.addEventListener("click", () => {
-      downloadResultCard(resultSummary, resultScores);
-    });
     document.getElementById("challenge-team-btn")?.addEventListener("click", async () => {
       try {
-        await challengeTeam(resultSummary, resultScores);
+        await shareQuizTracked();
       } catch {
         // Ignore clipboard failures.
       }
@@ -3157,13 +3135,6 @@ function render() {
           secondary: resultSummary.secondary,
         });
       });
-    });
-    document.getElementById("back-home-btn").addEventListener("click", () => {
-      if (standaloneMode || !hasHomePage()) {
-        restartQuiz();
-        return;
-      }
-      window.location.href = "index.html";
     });
   }
 }
