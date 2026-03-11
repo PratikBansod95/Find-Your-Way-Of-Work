@@ -20,6 +20,7 @@ module.exports = async function handler(req, res) {
   }
 
   const { type, sessionId, nickname, primary, secondary } = req.body || {};
+  const now = new Date().toISOString();
 
   if (!type || !sessionId) {
     res.status(400).json({ error: "type and sessionId are required" });
@@ -33,6 +34,7 @@ module.exports = async function handler(req, res) {
       const commands = [
         redis("INCR", "work-brain:starts"),
         redis("SADD", "work-brain:users", sessionId),
+        redis("HSET", "work-brain:startedAt", sessionId, now),
       ];
 
       if (safeNickname) {
@@ -40,8 +42,26 @@ module.exports = async function handler(req, res) {
       }
 
       await Promise.all(commands);
+    } else if (type === "complete") {
+      const commands = [
+        redis("INCR", "work-brain:completions"),
+        redis("HSET", "work-brain:completedAt", sessionId, now),
+      ];
+
+      if (safeNickname) {
+        commands.push(redis("HSET", "work-brain:nicknames", sessionId, safeNickname));
+      }
+
+      if (primary && secondary) {
+        commands.push(redis("HSET", "work-brain:results", sessionId, `${primary}:${secondary}`));
+      }
+
+      await Promise.all(commands);
     } else if (type === "share") {
-      const commands = [redis("INCR", "work-brain:shares")];
+      const commands = [
+        redis("INCR", "work-brain:shares"),
+        redis("HSET", "work-brain:sharedAt", sessionId, now),
+      ];
 
       if (safeNickname) {
         commands.push(redis("HSET", "work-brain:nicknames", sessionId, safeNickname));

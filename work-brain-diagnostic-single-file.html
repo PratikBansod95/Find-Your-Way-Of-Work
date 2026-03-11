@@ -232,6 +232,80 @@ body {
   margin-top: 12px;
 }
 
+.admin-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.admin-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #f8fbff;
+  padding: 18px;
+}
+
+.admin-card h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5b6474;
+}
+
+.admin-metric {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.admin-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e6eaf2;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.admin-table th {
+  background: #f7f9fd;
+  color: #475467;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: #eef2ff;
+  color: #344155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .share-copy {
   margin: 0;
   color: #1f2a3a;
@@ -981,12 +1055,16 @@ let answers = [];
 let analysisTimer = null;
 let forcedSavedResult = null;
 let nickname = "";
-let analytics = { configured: null, users: null, starts: null, shares: null };
+let analytics = { configured: null, users: null, starts: null, completions: null, shares: null };
+let adminData = { configured: null, users: 0, starts: 0, completions: 0, shares: 0, sessions: [] };
+let adminMode = false;
+let completionTracked = false;
 
 const app = document.getElementById("app");
 const standaloneMode =
   document.body?.dataset.standalone === "1" ||
   new URLSearchParams(window.location.search).get("standalone") === "1";
+const ADMIN_ACCESS_CODE = "Subject64432B";
 const STORAGE_KEYS = {
   latestResult: "workBrainLatestResult",
   nickname: "workBrainNickname",
@@ -1055,9 +1133,29 @@ function renderStatsMarkup() {
   return `
     <div class="stats-panel">
       <span class="stats-chip">${analytics.users || 0} people tried it</span>
+      <span class="stats-chip">${analytics.completions || 0} completed it</span>
       <span class="stats-chip">${analytics.shares || 0} share copies</span>
     </div>
   `;
+}
+
+function formatTimestamp(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+}
+
+function formatResultLabel(value) {
+  if (!value) return "—";
+
+  const [primary, secondary] = String(value).split(":");
+  if (!primary || !secondary || !DIMENSIONS[primary] || !DIMENSIONS[secondary]) {
+    return value;
+  }
+
+  return `${DIMENSIONS[primary].label} x ${DIMENSIONS[secondary].label}`;
 }
 
 async function refreshAnalytics() {
@@ -1072,6 +1170,7 @@ async function refreshAnalytics() {
       configured: payload.configured !== false,
       users: Number(payload.users || 0),
       starts: Number(payload.starts || 0),
+      completions: Number(payload.completions || 0),
       shares: Number(payload.shares || 0),
     };
 
@@ -1107,11 +1206,37 @@ async function trackEvent(type, extra = {}) {
         configured: payload.configured !== false,
         users: Number(payload.users || 0),
         starts: Number(payload.starts || 0),
+        completions: Number(payload.completions || 0),
         shares: Number(payload.shares || 0),
       };
     }
   } catch {
     // Ignore analytics post failures in local/offline mode.
+  }
+}
+
+async function refreshAdminData() {
+  if (!canUseAnalytics()) return;
+
+  try {
+    const response = await fetch("./api/admin", { cache: "no-store" });
+    if (!response.ok) return;
+
+    const payload = await response.json();
+    adminData = {
+      configured: payload.configured !== false,
+      users: Number(payload.users || 0),
+      starts: Number(payload.starts || 0),
+      completions: Number(payload.completions || 0),
+      shares: Number(payload.shares || 0),
+      sessions: Array.isArray(payload.sessions) ? payload.sessions : [],
+    };
+
+    if (adminMode) {
+      render();
+    }
+  } catch {
+    // Ignore admin fetch failures in local/offline mode.
   }
 }
 
@@ -1303,6 +1428,8 @@ function restartQuiz() {
     analysisTimer = null;
   }
   forcedSavedResult = null;
+  adminMode = false;
+  completionTracked = false;
   window.location.hash = "";
   answers = [];
   step = 0;
@@ -1865,6 +1992,98 @@ function renderResultScreen() {
   `;
 }
 
+function renderAdminDashboard() {
+  const sessionsMarkup = adminData.sessions.length
+    ? adminData.sessions
+        .map(
+          (session) => `
+          <tr>
+            <td>${escapeHtml(session.nickname || "Anonymous")}</td>
+            <td><code>${escapeHtml(session.sessionId || "—")}</code></td>
+            <td>${escapeHtml(formatResultLabel(session.result))}</td>
+            <td>${session.completed ? '<span class="pill">Completed</span>' : "—"}</td>
+            <td>${session.shared ? '<span class="pill">Shared</span>' : "—"}</td>
+            <td>${escapeHtml(formatTimestamp(session.startedAt))}</td>
+            <td>${escapeHtml(formatTimestamp(session.completedAt))}</td>
+            <td>${escapeHtml(formatTimestamp(session.sharedAt))}</td>
+          </tr>
+        `
+        )
+        .join("")
+    : `
+        <tr>
+          <td colspan="8">No tracked sessions yet.</td>
+        </tr>
+      `;
+
+  return `
+    <section class="topbar">
+      <div class="logo-box">WB</div>
+      <div>
+        <h1>Work Brain Admin Dashboard</h1>
+        <p>Live analytics and session-level data.</p>
+      </div>
+    </section>
+
+    <section class="panel panel-pad admin-shell">
+      <div class="badge-row">
+        <span class="badge dark">Admin mode</span>
+        <span class="badge">${adminData.sessions.length} tracked sessions</span>
+      </div>
+
+      ${
+        adminData.configured === false
+          ? `<p class="hero-desc">Redis is not configured yet. Add the Vercel KV or Upstash Redis env vars to see real analytics.</p>`
+          : ""
+      }
+
+      <div class="admin-grid">
+        <article class="admin-card">
+          <h3>Unique Users</h3>
+          <p class="admin-metric">${adminData.users}</p>
+        </article>
+        <article class="admin-card">
+          <h3>Starts</h3>
+          <p class="admin-metric">${adminData.starts}</p>
+        </article>
+        <article class="admin-card">
+          <h3>Completions</h3>
+          <p class="admin-metric">${adminData.completions}</p>
+        </article>
+        <article class="admin-card">
+          <h3>Shares</h3>
+          <p class="admin-metric">${adminData.shares}</p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" type="button" id="refresh-admin-btn">Refresh data</button>
+        <button class="btn secondary" type="button" id="exit-admin-btn">Exit admin</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nickname</th>
+              <th>Session ID</th>
+              <th>Result</th>
+              <th>Completed</th>
+              <th>Shared</th>
+              <th>Started</th>
+              <th>Completed At</th>
+              <th>Shared At</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sessionsMarkup}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
 function tryHydrateSavedResultMode() {
   if (window.location.hash !== "#result") return;
 
@@ -1873,6 +2092,7 @@ function tryHydrateSavedResultMode() {
     if (saved && (saved.rawScores || saved.normalizedScores)) {
       forcedSavedResult = saved;
       nickname = saved.nickname || nickname;
+      completionTracked = true;
       step = QUESTIONS.length + 2;
     }
   } catch {
@@ -1910,6 +2130,18 @@ function render() {
   const isAnalyzing = step === QUESTIONS.length + 1;
   const isResult = step > QUESTIONS.length + 1;
 
+  if (adminMode) {
+    app.innerHTML = renderAdminDashboard();
+    document.getElementById("refresh-admin-btn")?.addEventListener("click", refreshAdminData);
+    document.getElementById("exit-admin-btn")?.addEventListener("click", () => {
+      adminMode = false;
+      nickname = "";
+      writeStorage(STORAGE_KEYS.nickname, "");
+      render();
+    });
+    return;
+  }
+
   if (isIntro) {
     app.innerHTML = renderIntroScreen();
     const nicknameInput = document.getElementById("nickname-input");
@@ -1921,10 +2153,25 @@ function render() {
       startButton.disabled = !nickname.trim();
     });
 
+    nicknameInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !startButton.disabled) {
+        startButton.click();
+      }
+    });
+
     document.getElementById("start-btn").addEventListener("click", () => {
       const enteredName = nicknameInput?.value.trim() || nickname.trim();
       if (!enteredName) return;
 
+      if (enteredName === ADMIN_ACCESS_CODE) {
+        adminMode = true;
+        refreshAdminData();
+        render();
+        return;
+      }
+
+      adminMode = false;
+      completionTracked = false;
       nickname = enteredName;
       writeStorage(STORAGE_KEYS.nickname, nickname);
       trackEvent("start", { nickname });
@@ -1966,6 +2213,16 @@ function render() {
   }
 
   if (isResult) {
+    if (!completionTracked && !forcedSavedResult) {
+      const rawScores = getScores();
+      const summary = getSummary(rawScores);
+      completionTracked = true;
+      trackEvent("complete", {
+        nickname,
+        primary: summary.primary,
+        secondary: summary.secondary,
+      });
+    }
     app.innerHTML = renderResultScreen();
     document.getElementById("share-btn").addEventListener("click", shareQuizTracked);
     document.getElementById("back-home-btn").addEventListener("click", () => {
