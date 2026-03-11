@@ -2059,8 +2059,8 @@ function renderAdminDashboard() {
       </div>
 
       <div class="actions">
-        <button class="btn secondary" type="button" id="refresh-admin-btn">Refresh data</button>
-        <button class="btn secondary" type="button" id="exit-admin-btn">Exit admin</button>
+        <button class="btn secondary" type="button" id="refresh-admin-btn">Refresh</button>
+        <button class="btn secondary" type="button" id="back-admin-btn">Back</button>
       </div>
 
       <div class="admin-table-wrap">
@@ -2135,7 +2135,7 @@ function render() {
   if (adminMode) {
     app.innerHTML = renderAdminDashboard();
     document.getElementById("refresh-admin-btn")?.addEventListener("click", refreshAdminData);
-    document.getElementById("exit-admin-btn")?.addEventListener("click", () => {
+    document.getElementById("back-admin-btn")?.addEventListener("click", () => {
       adminMode = false;
       nickname = "";
       writeStorage(STORAGE_KEYS.nickname, "");
