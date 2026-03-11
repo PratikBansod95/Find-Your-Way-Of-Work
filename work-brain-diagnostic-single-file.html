@@ -1792,8 +1792,6 @@ function renderIntroScreen() {
           />
         </div>
       </div>
-
-      ${renderStatsMarkup()}
     </section>
   `;
 }
@@ -1907,7 +1905,6 @@ function renderResultScreen() {
       </div>
       <h2>${safeName}, your work brain is <span class="accent">${DIMENSIONS[summary.primary].label}</span> with a strong <span class="accent">${DIMENSIONS[summary.secondary].label}</span> layer.</h2>
       <p class="hero-desc">${summary.hook}</p>
-      ${renderStatsMarkup()}
 
       <div class="result-grid">
         <article class="block soft">
