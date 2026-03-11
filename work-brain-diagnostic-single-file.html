@@ -1127,6 +1127,10 @@ function getDisplayName() {
   return (savedName || nickname || "Friend").trim();
 }
 
+function getAppShareUrl() {
+  return `${window.location.origin}/`;
+}
+
 function renderStatsMarkup() {
   if (analytics.configured === false) {
     return `<p class="stats-inline">Analytics is ready to work after Redis is connected in Vercel.</p>`;
@@ -1450,10 +1454,11 @@ async function shareQuiz() {
   const hydratedScores = forcedSavedResult?.rawScores || forcedSavedResult?.normalizedScores || getScores();
   const summary = forcedSavedResult?.summary || getSummary(hydratedScores);
   const resultType = `${DIMENSIONS[summary.primary].label} × ${DIMENSIONS[summary.secondary].label}`;
+  const appUrl = getAppShareUrl();
   const message =
     `Heya I just took this Work Brain Diagnostic quiz on wysa and got a surprisingly accurate read on how I work, ` +
     `My way of working is ${resultType}.\n` +
-    `Click on the link to find out yours: https://dev-widget.wysa.io/wrapper/accenturementalwellbeing/`;
+    `Take the quiz here: ${appUrl}`;
 
   openSharePopup(message);
 }
@@ -1487,7 +1492,7 @@ function openSharePopup(message) {
       <h3>Share</h3>
       <textarea readonly>${message}</textarea>
       <div class="share-modal-actions">
-        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY LINK</button>
+        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY MESSAGE</button>
       </div>
     </div>
   `;
@@ -1801,10 +1806,11 @@ async function shareQuizTracked() {
   const summary = forcedSavedResult?.summary || getSummary(hydratedScores);
   const displayName = getDisplayName();
   const resultType = `${DIMENSIONS[summary.primary].label} x ${DIMENSIONS[summary.secondary].label}`;
+  const appUrl = getAppShareUrl();
   const message =
     `${displayName} just took the Work Brain Diagnostic quiz on Wysa.\n` +
     `Work style: ${resultType}.\n` +
-    `Click on the link to find out yours: https://dev-widget.wysa.io/wrapper/accenturementalwellbeing/`;
+    `Take the quiz here: ${appUrl}`;
 
   openTrackedSharePopup(message, summary);
 }
@@ -1821,7 +1827,7 @@ function openTrackedSharePopup(message, summary) {
       <h3>Share</h3>
       <textarea readonly>${message}</textarea>
       <div class="share-modal-actions">
-        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY LINK</button>
+        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY MESSAGE</button>
       </div>
     </div>
   `;
