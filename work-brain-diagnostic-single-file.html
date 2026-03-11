@@ -147,6 +147,12 @@ body {
   flex-wrap: wrap;
 }
 
+.actions .name-box {
+  margin-top: 0;
+  flex: 1 1 320px;
+  max-width: 420px;
+}
+
 .btn {
   border: 0;
   border-radius: 14px;
@@ -1757,21 +1763,6 @@ function renderIntroScreen() {
         and how to improve without becoming a different person.
       </p>
 
-      <div class="name-box">
-        <label class="field-label" for="nickname-input">Pick a nickname</label>
-        <input
-          class="text-input"
-          id="nickname-input"
-          type="text"
-          maxlength="32"
-          placeholder="How should we address you?"
-          value="${safeNickname}"
-        />
-        <p class="inline-note muted-note">This name is used in your result and stored with analytics so you can track who tried the quiz.</p>
-      </div>
-
-      ${renderStatsMarkup()}
-
       <div class="two-col">
         <article class="info-card">
           <p class="info-title">What you will get</p>
@@ -1790,8 +1781,19 @@ function renderIntroScreen() {
 
       <div class="actions">
         <button class="btn primary" type="button" id="start-btn" ${nickname.trim() ? "" : "disabled"}>Start the quiz</button>
-        <span class="inline-note">No sign-up. No score shaming. Just signal.</span>
+        <div class="name-box">
+          <input
+            class="text-input"
+            id="nickname-input"
+            type="text"
+            maxlength="32"
+            placeholder="How should we address you?"
+            value="${safeNickname}"
+          />
+        </div>
       </div>
+
+      ${renderStatsMarkup()}
     </section>
   `;
 }
