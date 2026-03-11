@@ -61,8 +61,8 @@ async function getStats() {
   const [users, starts, completions, shares] = await Promise.all([
     redis("SCARD", "work-brain:users"),
     redis("GET", "work-brain:starts"),
-    redis("GET", "work-brain:completions"),
-    redis("GET", "work-brain:shares"),
+    redis("HLEN", "work-brain:completedAt"),
+    redis("HLEN", "work-brain:sharedAt"),
   ]);
 
   return {

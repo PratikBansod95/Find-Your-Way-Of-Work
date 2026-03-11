@@ -1996,6 +1996,7 @@ async function trackEvent(type, extra = {}) {
   try {
     const response = await fetch("./api/track", {
       method: "POST",
+      keepalive: true,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type,
@@ -3127,14 +3128,6 @@ function render() {
       } catch {
         // Ignore clipboard failures.
       }
-    });
-    ["share-linkedin", "share-x", "share-whatsapp"].forEach((id) => {
-      document.getElementById(id)?.addEventListener("click", () => {
-        trackEvent("share", {
-          primary: resultSummary.primary,
-          secondary: resultSummary.secondary,
-        });
-      });
     });
   }
 }
