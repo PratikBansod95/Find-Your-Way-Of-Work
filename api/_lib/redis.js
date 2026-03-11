@@ -26,6 +26,27 @@ async function redis(command, ...args) {
   return payload.result;
 }
 
+function normalizeHashResult(value) {
+  if (!value) return {};
+
+  if (Array.isArray(value)) {
+    const entries = {};
+    for (let i = 0; i < value.length; i += 2) {
+      const key = value[i];
+      const nextValue = value[i + 1];
+      if (typeof key === "undefined") continue;
+      entries[String(key)] = typeof nextValue === "undefined" ? "" : nextValue;
+    }
+    return entries;
+  }
+
+  if (typeof value === "object") {
+    return value;
+  }
+
+  return {};
+}
+
 async function getStats() {
   if (!isRedisConfigured()) {
     return {
@@ -62,7 +83,7 @@ async function getAdminData() {
     };
   }
 
-  const [nicknames, results, completedAt, sharedAt, startedAt, lastQuestion, lastActiveAt] = await Promise.all([
+  const [nicknamesRaw, resultsRaw, completedAtRaw, sharedAtRaw, startedAtRaw, lastQuestionRaw, lastActiveAtRaw] = await Promise.all([
     redis("HGETALL", "work-brain:nicknames"),
     redis("HGETALL", "work-brain:results"),
     redis("HGETALL", "work-brain:completedAt"),
@@ -71,6 +92,14 @@ async function getAdminData() {
     redis("HGETALL", "work-brain:lastQuestion"),
     redis("HGETALL", "work-brain:lastActiveAt"),
   ]);
+
+  const nicknames = normalizeHashResult(nicknamesRaw);
+  const results = normalizeHashResult(resultsRaw);
+  const completedAt = normalizeHashResult(completedAtRaw);
+  const sharedAt = normalizeHashResult(sharedAtRaw);
+  const startedAt = normalizeHashResult(startedAtRaw);
+  const lastQuestion = normalizeHashResult(lastQuestionRaw);
+  const lastActiveAt = normalizeHashResult(lastActiveAtRaw);
 
   const ids = Array.from(
     new Set([
