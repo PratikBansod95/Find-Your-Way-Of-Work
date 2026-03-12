@@ -1799,14 +1799,14 @@ function getTopPercentLabel(value) {
 }
 
 function getSharePayload(summary, scores) {
-  const displayName = getDisplayName();
   const appUrl = getAppShareUrl();
   const combo = `${DIMENSIONS[summary.primary].label} + ${DIMENSIONS[summary.secondary].label}`;
   const tagline = getShareTagline(summary);
   const text =
-    `${displayName ? `${displayName}'s` : "My"} work brain is ${combo}.\n\n` +
-    `${tagline}\n\n` +
-    `What's yours?\n${appUrl}`;
+    `I got ${combo} on the Work Brain Diagnostic.\n\n` +
+    `Apparently it's one of the rare work styles.\n\n` +
+    `Think you can match it or beat it?\n\n` +
+    `${appUrl}`;
 
   return {
     appUrl,
