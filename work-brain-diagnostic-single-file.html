@@ -2611,24 +2611,6 @@ async function shareQuizTracked() {
   const summary = forcedSavedResult?.summary || getSummary(hydratedScores);
   const scores = normalizeScoresToThirty(hydratedScores);
   const payload = getSharePayload(summary, scores);
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: payload.title,
-        text: payload.text,
-        url: payload.appUrl,
-      });
-      await trackEvent("share", {
-        primary: summary?.primary || null,
-        secondary: summary?.secondary || null,
-      });
-      return;
-    } catch {
-      // Fall back to custom popup below.
-    }
-  }
-
   openTrackedSharePopup(payload.text, summary);
 }
 
@@ -2779,7 +2761,7 @@ function renderResultScreen() {
             <div class="hero-divider" style="margin-top:20px;">
               <p class="hero-prompt">${safeName ? `${safeName}, ` : ""}${rarityHook}</p>
               <div class="share-actions">
-                <button class="btn primary icon-btn" type="button" id="challenge-team-btn">Challenge Your Team <span aria-hidden="true">→</span></button>
+                <button class="btn primary icon-btn" type="button" id="challenge-team-btn">Challenge Your Friends <span aria-hidden="true">→</span></button>
               </div>
               <div class="share-socials" style="margin-top:14px;">
                 <a class="social-link" id="share-linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=${socialUrl}" target="_blank" rel="noreferrer">
