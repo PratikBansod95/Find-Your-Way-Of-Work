@@ -1839,10 +1839,11 @@ function getSharePayload(summary, scores) {
   const combo = `${DIMENSIONS[summary.primary].label} + ${DIMENSIONS[summary.secondary].label}`;
   const tagline = getShareTagline(summary);
   const text =
-    `I got ${combo} on the Work Brain Diagnostic.\n\n` +
+    `Hey I took the new Work Brain Diagnostic & got ${combo}.\n` +
     `Apparently it's one of the rare work styles.\n\n` +
-    `Think you can match it or beat it?\n\n` +
-    `${appUrl}`;
+    `Think you can match it or beat it?\n` +
+    `${appUrl}\n\n` +
+    `(3 min quiz)`;
 
   return {
     appUrl,
