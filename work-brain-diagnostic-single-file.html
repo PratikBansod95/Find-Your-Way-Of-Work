@@ -1293,61 +1293,93 @@ body {
 .share-modal {
   width: min(760px, calc(100vw - 28px));
   max-height: min(92vh, 760px);
-  background: #f4f4f5;
-  border-radius: 18px;
-  border: 1px solid #dce3ef;
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.24);
-  padding: 22px 26px 34px;
+  background:
+    radial-gradient(circle at top left, rgba(139, 92, 246, 0.16), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.12), transparent 32%),
+    #fbfbfd;
+  border-radius: 28px;
+  border: 1px solid rgba(213, 220, 234, 0.9);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.26);
+  padding: 28px 30px 30px;
   position: relative;
   text-align: center;
   overflow: auto;
 }
 
 .share-modal h3 {
-  margin: 2px 0 26px;
-  font-size: 34px;
+  margin: 4px 0 18px;
+  font-size: 38px;
   font-weight: 700;
-  color: #1f2937;
+  color: #182033;
 }
 
-.share-modal p {
-  margin: 0 auto 24px;
-  color: #1f2937;
-  max-width: 600px;
-  font-size: 22px;
-  line-height: 1.35;
+.share-preview {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 32px;
+  text-align: left;
+  background:
+    radial-gradient(circle at 90% 80%, rgba(196, 181, 253, 0.28), transparent 22%),
+    radial-gradient(circle at 12% 14%, rgba(221, 214, 254, 0.42), transparent 18%),
+    linear-gradient(180deg, #ffffff 0%, #f6f1ff 100%);
+  border: 1px solid rgba(205, 211, 228, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.share-preview-kicker {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6f4cff;
+}
+
+.share-preview-copy {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: clamp(20px, 2vw, 22px);
+  line-height: 1.55;
+  color: #394254;
+}
+
+.share-preview-copy strong {
+  color: #1d2a44;
+}
+
+.share-preview-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(111, 76, 255, 0.08);
+  color: #5a44d6;
+  font-size: 16px;
   font-weight: 600;
 }
 
-.share-modal textarea {
-  width: min(580px, 100%);
-  min-height: 126px;
-  border-radius: 24px;
-  border: 1px dashed #a5aab4;
-  background: #f8f8f9;
-  padding: 24px 28px;
-  font: inherit;
-  line-height: 1.5;
-  color: #6a7380;
-  resize: none;
-  display: block;
-  margin: 0 auto;
+.share-preview-link span {
+  overflow-wrap: anywhere;
 }
 
 .share-modal-actions {
-  margin-top: 22px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
 }
 
 .share-copy-btn {
-  min-width: 300px;
+  min-width: 240px;
   border-radius: 999px;
-  background: #c96500;
+  background: linear-gradient(135deg, #6f4cff 0%, #4f46e5 100%);
   color: #ffffff;
-  font-size: 34px;
-  font-size: clamp(18px, 1.25vw, 34px);
-  padding: 14px 34px;
+  font-size: clamp(18px, 1.15vw, 22px);
+  font-weight: 700;
+  padding: 15px 34px;
+  box-shadow: 0 18px 34px rgba(79, 70, 229, 0.26);
 }
 
 .share-close-btn {
@@ -1368,17 +1400,22 @@ body {
 @media (max-width: 760px) {
   .share-modal h3 {
     font-size: 28px;
-    margin-bottom: 18px;
-  }
-
-  .share-modal p {
-    font-size: 18px;
+    margin-bottom: 16px;
   }
 
   .share-close-btn {
     width: 52px;
     height: 52px;
     font-size: 34px;
+  }
+
+  .share-preview {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .share-preview-copy {
+    font-size: 18px;
   }
 }
 
@@ -1460,7 +1497,6 @@ body {
   .pie-layout { grid-template-columns: 1fr; justify-items: center; }
   .option { min-height: unset; }
   .share-modal { padding: 18px 16px 24px; }
-  .share-modal textarea { min-height: 110px; padding: 18px 20px; border-radius: 24px; }
   .share-copy-btn { min-width: 100%; }
   .result-hero-card,
   .profile-card,
@@ -2631,6 +2667,9 @@ async function challengeTeam(summary, scores) {
 function openTrackedSharePopup(message, summary) {
   const existing = document.querySelector(".share-modal-overlay");
   if (existing) existing.remove();
+  const appUrl = getAppShareUrl();
+  const previewMessage = escapeHtml(message.replace(appUrl, "").trim());
+  const previewUrl = escapeHtml(appUrl);
 
   const overlay = document.createElement("div");
   overlay.className = "share-modal-overlay";
@@ -2638,9 +2677,16 @@ function openTrackedSharePopup(message, summary) {
     <div class="share-modal" role="dialog" aria-modal="true" aria-label="Share quiz">
       <button type="button" class="share-close-btn" id="close-share-btn" aria-label="Close share popup">&times;</button>
       <h3>Share</h3>
-      <textarea readonly>${message}</textarea>
+      <div class="share-preview">
+        <p class="share-preview-kicker">Invite message</p>
+        <p class="share-preview-copy">${previewMessage}</p>
+        <div class="share-preview-link" aria-label="Quiz link">
+          <span aria-hidden="true">🔗</span>
+          <span>${previewUrl}</span>
+        </div>
+      </div>
       <div class="share-modal-actions">
-        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">COPY MESSAGE</button>
+        <button type="button" class="btn primary share-copy-btn" id="copy-share-btn">Copy</button>
       </div>
     </div>
   `;
