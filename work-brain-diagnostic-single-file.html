@@ -1802,15 +1802,11 @@ function getSharePayload(summary, scores) {
   const appUrl = getAppShareUrl();
   const combo = `${DIMENSIONS[summary.primary].label} + ${DIMENSIONS[summary.secondary].label}`;
   const tagline = getShareTagline(summary);
-  const rarityText = getRarityHook(scores, summary);
-  const rarityMatch = rarityText.match(/Only\s+(\d+)%/i);
-  const rarityPercent = rarityMatch ? rarityMatch[1] : "12";
   const text =
     `I got ${combo} on the Work Brain Diagnostic.\n\n` +
-    `Apparently only ${rarityPercent}% of people have this combination.\n\n` +
+    `Apparently it's one of the rare work styles.\n\n` +
     `Think you can match it or beat it?\n\n` +
-    `${appUrl}\n\n` +
-    `(3 min quiz)`;
+    `${appUrl}`;
 
   return {
     appUrl,
